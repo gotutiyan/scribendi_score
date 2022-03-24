@@ -133,7 +133,11 @@ def load_file(file_path: str) -> List[str]:
 def main(args):
     if args.examples:
         # Examples using sentences of Table 1 in the paper.
-        scorer = ScribendiScore()
+        scorer = ScribendiScore(
+            model_id=args.model_id,
+            threshold=args.threshold,
+            no_cuda=args.no_cuda
+        )
         src = ["Once the test is done , whether the results should be open to his or her relatives has caused social extensive controversy."]
         pred = ["Once the test is done , whether the results should be open to his or her relatives has caused extensive social controversy."]
         print('src:', src)
