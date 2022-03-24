@@ -50,8 +50,8 @@ python scribendi.py --src demo/src.txt --pred demo/pred.txt --no_cuda
 ```python
 from scribendi import ScribendiScore
 scorer = ScribendiScore()
-src_sents = ['This is a sentence .', 'This is a also sentence .']
-pred_sents = ['This a is sentence .', 'This is a also sentence .']
+src_sents = ['This is a sentence .', 'This is another sentence .']
+pred_sents = ['This a is sentence .', 'This is another sentence .']
 print(scorer.score(src_sents, pred_sents)) # -1 (-1 + 0)
 ```
 
