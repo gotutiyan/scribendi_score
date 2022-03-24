@@ -2,14 +2,25 @@ from transformers import GPT2TokenizerFast, GPT2LMHeadModel
 from fuzzywuzzy.fuzz import token_sort_ratio
 import torch
 import argparse
+from typing import List, Dict, Tuple
+
 class ScribendiScore:
-    def __init__(self, threshold=0.8, model_id='gpt2', no_cuda=False):
+    def __init__(self, 
+        threshold: float=0.8,
+        model_id: str='gpt2',
+        no_cuda: bool=False
+    ) -> None:
         self.threshold = threshold
         self.model_id = model_id
         self.no_cuda = no_cuda
         self.tokenizer, self.model = self.load_model(model_id)
     
-    def score(self, src_sents, pred_sents, batch_size=32, verbose=True):
+    def score(self,
+        src_sents: List[str],
+        pred_sents: List[str],
+        batch_size: int=32,
+        verbose: bool=False
+    ) -> int:
         src_sents, pred_sents, count = self.remove_eq_sents(src_sents, pred_sents)
         src_ppls = self.ppl(src_sents, batch_size)
         pred_ppls = self.ppl(pred_sents, batch_size)
@@ -31,7 +42,7 @@ class ScribendiScore:
         print('score2freq ->', score2freq, ', score ->', score2freq[1] - score2freq[-1])
         return score
                 
-    def ppl(self, sents, batch_size=32):
+    def ppl(self, sents: List[str], batch_size: int=32) -> List[int]:
         ppls = []
         sents = [self.tokenizer.bos_token + sent for sent in sents]
         for i in range(len(sents)//batch_size+1):
@@ -52,17 +63,20 @@ class ScribendiScore:
                 shift_mask = inputs['attention_mask'][:, 1:].contiguous()
                 batch_size, seq_len = shift_labels.shape
                 loss_fn = torch.nn.CrossEntropyLoss(reduction='none')
-                loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1)).view(batch_size, seq_len)
+                loss = loss_fn(
+                    shift_logits.view(-1, shift_logits.size(-1)),
+                    shift_labels.view(-1)
+                ).view(batch_size, seq_len)
                 loss = (loss * shift_mask).sum(dim=1) / shift_mask.sum(dim=1)
                 ppls += torch.exp(loss).tolist()
         return ppls
 
     @staticmethod
-    def token_sort_ratio(src, pred):
+    def token_sort_ratio(src: str, pred: str) -> float:
         return token_sort_ratio(src, pred) / 100
     
     @staticmethod
-    def levenshtein_distance_ratio(src, pred):
+    def levenshtein_distance_ratio(src: str, pred: str) -> float:
         len_src = len(src)
         len_pred = len(pred)
         dp = [[0]*(len_pred+1) for _ in range(len_src+1)]
@@ -82,7 +96,9 @@ class ScribendiScore:
                 )
         return 1 - dp[len_src][len_pred] / (len_src + len_pred)
 
-    def load_model(self, model_id):
+    def load_model(self, 
+        model_id: str
+    ) -> Tuple[GPT2TokenizerFast, GPT2LMHeadModel]:
         tokenizer = GPT2TokenizerFast.from_pretrained(model_id)
         model = GPT2LMHeadModel.from_pretrained(model_id)
         tokenizer.pad_token = tokenizer.eos_token
@@ -91,7 +107,10 @@ class ScribendiScore:
         return tokenizer, model
         
     @staticmethod
-    def remove_eq_sents(src_sents, pred_sents):
+    def remove_eq_sents(
+        src_sents: List[str],
+        pred_sents: List[str]
+    )-> Tuple[List[str], List[str], int]:
         new_src_sents = []
         new_pred_sents = []
         count = 0
@@ -103,7 +122,7 @@ class ScribendiScore:
                 count += 1
         return new_src_sents, new_pred_sents, count
 
-def load_file(file_path):
+def load_file(file_path: str) -> List[str]:
     sentences = []
     with open(file_path) as fp:
         for line in fp:

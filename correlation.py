@@ -2,8 +2,9 @@ from scribendi import ScribendiScore
 import argparse
 from tqdm import tqdm
 from scipy.stats import pearsonr, spearmanr
+from typing import List, Dict, Tuple, Optional
 
-def main(args):
+def main(args) -> None:
     scorer = ScribendiScore(args.threshold, args.model_id, args.no_cuda)
     src = load_file(args.src)
     system_outputs = dict()
@@ -16,10 +17,16 @@ def main(args):
         verbose=args.verbose
     )
     print('Correlation with {}:'.format(args.paper_id))
-    print('  Peason\'s correlation:', peason_crr[0])
-    print('  Spearman\'s correlation:', spearman_crr[0])
+    print('  Peason\'s correlation:', peason_crr)
+    print('  Spearman\'s correlation:', spearman_crr)
 
-def calc_correlation(src_sents, system_outputs, scorer, paper_id='Grundkiewicz-2015', verbose=False):
+def calc_correlation(
+    src_sents: List[str], 
+    system_outputs: Dict[str, List[str]],
+    scorer: ScribendiScore,
+    paper_id: str='Grundkiewicz-2015',
+    verbose:bool=False
+) -> Tuple[float, float]:
     system_scores = dict()
     for sys_name, pred_sents in tqdm(system_outputs.items()):
         print(sys_name, end=': ')
@@ -42,9 +49,11 @@ def calc_correlation(src_sents, system_outputs, scorer, paper_id='Grundkiewicz-2
         [human_score[human_rank.index(sys_name)] for sys_name in human_rank],
         [system_score[system_rank.index(sys_name)] for sys_name in human_rank]
     )
-    return pearson_crr, spearman_crr
+    return pearson_crr[0], spearman_crr[0]
         
-def load_human_rank(paper_id='Grundkiewicz-2015'):
+def load_human_rank(
+    paper_id: str='Grundkiewicz-2015'
+) -> Tuple[List[str], List[float]]:
     '''
     return: system ranking and its score.
     For Grundkiewicz-2015, it used Human TrueSkill ranking.
@@ -57,7 +66,7 @@ def load_human_rank(paper_id='Grundkiewicz-2015'):
     else:
         raise ValueError('{} is invalid for paper_id.'.format(paper_id))
 
-def load_file(file_path):
+def load_file(file_path: str) -> List[str]:
     sentences = []
     with open(file_path) as fp:
         for line in fp:
