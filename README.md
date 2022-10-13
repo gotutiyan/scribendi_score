@@ -33,10 +33,23 @@ pip install -r requirements.txt
 python scribendi.py --src <source file> --pred <prediction file>
 ```
 
+Note that multiple source and prediction files can be given, separated by
+colons. If the colon-separated lists of files are of identical length, they
+are matched directly. Alternatively, a single source file may be given along
+with multiple prediction files, for instance from multiple systems.
+Example:
+
+```bash
+python scribendi.py --src test.original --pred test.system1:test.system2
+```
+
+This is useful to save time with large language models and multiple small
+evaluation files.
+
 - Other options
 
 `--no_cuda`   
-`--model_id <str>`: Specify the id of GPT-2 related model of huggingface. (default: 'gpt2')  
+`--model_id <str>`: Specify the id of GPT-2 related model of huggingface. (default: 'gpt2') You can also specify a local directory, from which the model will be loaded.
 `--threshold <float>`: The threshold of a token sort ratio and a levenshtein distance ratio. (default: 0.8)  
 `--batch_size <int>`: The batch size to compute perplexity of a GPT-2 model faster. (default: 32)  
 `--example`: Show the perplexity, the token sort ration and the levenshtein distance ratio using the examples of Table 1 in the [paper](https://aclanthology.org/2021.emnlp-main.239/).
