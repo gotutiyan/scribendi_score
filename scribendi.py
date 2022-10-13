@@ -1,3 +1,4 @@
+import os.path
 from transformers import GPT2TokenizerFast, GPT2LMHeadModel
 from fuzzywuzzy.fuzz import token_sort_ratio
 import torch
@@ -99,8 +100,11 @@ class ScribendiScore:
     def load_model(self, 
         model_id: str
     ) -> Tuple[GPT2TokenizerFast, GPT2LMHeadModel]:
-        tokenizer = GPT2TokenizerFast.from_pretrained(model_id)
-        model = GPT2LMHeadModel.from_pretrained(model_id)
+        local=os.path.exists(model_id)
+        tokenizer = GPT2TokenizerFast.from_pretrained(model_id,
+                local_files_only=local)
+        model = GPT2LMHeadModel.from_pretrained(model_id,
+                local_files_only=local)
         tokenizer.pad_token = tokenizer.eos_token
         if not self.no_cuda:
             model.to('cuda')
