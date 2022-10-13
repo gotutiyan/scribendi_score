@@ -168,10 +168,17 @@ def main(args):
             threshold=args.threshold,
             no_cuda=args.no_cuda
         )
-        src_sents = load_file(args.src)
-        pred_sents = load_file(args.pred)
-        print(scorer.score(src_sents, pred_sents,
-                            batch_size=args.batch_size))
+        src_files = args.src.split(':')
+        pred_files = args.pred.split(':')
+        if len(src_files) == 1 and len(pred_files) > 1:
+            src_files = src_files * len(pred_files)
+        assert len(src_files) == len(pred_files)
+        for src_file, pred_file in zip(src_files, pred_files):
+            src_sents = load_file(src_file)
+            pred_sents = load_file(pred_file)
+            print(src_file, pred_file)
+            print(scorer.score(src_sents, pred_sents,
+                                batch_size=args.batch_size))
     
 
 def get_parser():
