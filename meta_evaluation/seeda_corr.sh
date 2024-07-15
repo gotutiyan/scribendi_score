@@ -1,6 +1,11 @@
 # set -eu
 
 cd meta_evaluation
+
+if [[ ! -f scribendi.py ]]; then
+ln -s ../scribendi.py
+fi
+
 if [[ ! -d data ]]; then
 mkdir data
 fi
