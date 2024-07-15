@@ -21,7 +21,7 @@ This an unofficial repository that reproduces Scribendi Score, proposed in the f
 Note that the human correlation experiments were not able to fully reproduce the results of the paper.
 
 # Install
-Confirmed that it works python3.7.10
+Confirmed that it works python3.11.0
 ```
 pip install -r requirements.txt
 ```
@@ -68,25 +68,38 @@ pred_sents = ['This a is sentence .', 'This is another sentence .']
 print(scorer.score(src_sents, pred_sents)) # -1 (-1 + 0)
 ```
 
-# Reproducing of Human Correlation
+# Meta-evaluation
 
-It provides the scripts to reproduce a experiment, which calculate correlation between Scribendi Score's score and human's score. 
+### Correlations on the CoNLL-14 submissions
 
-Note that I did not able to fully reproduce the results of the paper. The below table indicates the correlations with human score of [Grundkiewicz-2015](https://aclanthology.org/D15-1052/) (Human TrueSkill ranking).
-|Correlation|Paper (Table 3)|Reproduced|
+An example to calculate the correlation with [Grundkiewicz-2015](https://aclanthology.org/D15-1052/) (Human TrueSkill ranking).  
+`Grundkiewicz-2015.txt`'s scores are arranged as follows: `[]`
+
+```sh
+bash meta_evaluation/conll14_official.sh
+```
+
+The results are:
+
+|Correlation|Paper (Table 3)|Ours|
 |:---|:--:|:--:|
 |Pearson|0.951|0.913|
 |Spearman|0.940|0.928|
 
-### Procedure of Reproducing
-```bash
-bash prepare_data.sh
-python correlation.py
+### Correlations on SEEDA
+
+An example to calculate the correlation using SEEDA [Kobayashi+ 2024](https://arxiv.org/abs/2403.02674).
+
+```sh
+bash meta_evaluation/seeda.sh
 ```
 
-The outputs will be like this:
+Outputs:
 ```
-Correlation with Grundkiewicz-2015
-  Peason's correlation: 0.9139891180613645
-  Spearman's correlation: 0.9285714285714285
+SEEDA-S
+Pearson: 0.6308356098410074
+Spearman: 0.6409817185295869
+SEEDA-E
+Pearson: 0.8323609711579115
+Spearman: 0.847637026689399
 ```
